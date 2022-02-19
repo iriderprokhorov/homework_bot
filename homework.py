@@ -23,7 +23,7 @@ PRACTICUM_TOKEN = os.getenv('P_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('CHAT_ID')
 
-RETRY_TIME = 600
+RETRY_TIME = 6
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -80,7 +80,7 @@ def check_response(response):
             logger.error('homeworks is wrong type')
             raise TypeError('homeworks is wrong type')
         if not homeworks:
-            logger.error('homeworks is empty')
+            logger.error(homeworks)
             raise KeyError('homeworks is empty')
         return homeworks
 
@@ -117,24 +117,27 @@ def main():
     """Main module."""
     if check_tokens() is True:
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        current_timestamp = int(time.time())
+        current_timestamp = int(time.time()) - 36000
     else:
         return
+
+    last_result = ''
 
     while True:
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
+            verdict = parse_status(homeworks[0])
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.error(message)
         else:
-            verdict = parse_status(homeworks[0])
-            if not verdict:
-                send_message(bot, verdict)
+            logger.info(verdict)
+            if last_result == verdict:
+                logger.info('not change')
             else:
-                logger.debug("not change")
-            current_timestamp = response['current_date']
+                last_result = verdict
+                send_message(bot, verdict)
         finally:
             time.sleep(RETRY_TIME)
 
