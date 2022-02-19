@@ -1,13 +1,12 @@
 import logging
-import requests
 import os
+import requests
 import sys
 import telegram
 import time
 
 from dotenv import load_dotenv
 from http import HTTPStatus
-
 
 load_dotenv()
 
@@ -37,7 +36,7 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
-    """function send message"""
+    """Function for send message."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
     except Exception as error:
@@ -48,11 +47,11 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    """function getting response from api"""
+    """Function getting response from api."""
     timestamp = current_timestamp or int(time.time())
     # 1642412129
-    params = {'from_date': timestamp}
-
+    params = {'from_date': timestamp} 
+  
     try:
         homework_response = requests.get(
             url=ENDPOINT, headers=HEADERS, params=params
@@ -69,7 +68,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    """function validation response"""
+    """Function validation response."""
     try:
         homeworks = response['homeworks']
     except KeyError as error:
@@ -87,7 +86,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Check homework status"""
+    """Check homework status."""
     try:
         homework_name = homework['homework_name']
         homework_status = homework['status']
@@ -105,7 +104,7 @@ def parse_status(homework):
 
 
 def check_tokens():
-    """Check token availability"""
+    """Check token availability."""
     for token in (PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID):
         if not token:
             logger.critical('token is not available')
@@ -114,7 +113,7 @@ def check_tokens():
 
 
 def main():
-    """Main module"""
+    """Main module."""
     if check_tokens() is True:
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
         current_timestamp = int(time.time())
