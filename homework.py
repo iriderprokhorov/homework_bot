@@ -50,8 +50,8 @@ def get_api_answer(current_timestamp):
     """Function getting response from api."""
     timestamp = current_timestamp or int(time.time())
     # 1642412129
-    params = {'from_date': timestamp} 
-  
+    params = {'from_date': timestamp}
+
     try:
         homework_response = requests.get(
             url=ENDPOINT, headers=HEADERS, params=params
@@ -97,7 +97,8 @@ def parse_status(homework):
     else:
         if homework_status in HOMEWORK_STATUSES:
             verdict = HOMEWORK_STATUSES[homework_status]
-            return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+            return (f'Изменился статус проверки работы'
+                    f' "{homework_name}". {verdict}')
         else:
             logger.error('homework status is not defined')
             raise Exception('homework status is not defined')
@@ -120,17 +121,15 @@ def main():
     else:
         return
 
-
     while True:
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.error(message)
         else:
-            verdict = parse_status(homeworks[0])           
+            verdict = parse_status(homeworks[0])
             if not verdict:
                 send_message(bot, verdict)
             else:
